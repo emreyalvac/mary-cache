@@ -1,3 +1,3 @@
 # Mary Cache
 
-gRPC Cache Server
+gRPC Cache Server Implementation in Rust
