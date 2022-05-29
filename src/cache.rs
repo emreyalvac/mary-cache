@@ -1,8 +1,5 @@
 /// Get All Cache Set
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GetAllCacheSetRequest {
-}
-#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetAllCacheSetResponse {
     #[prost(int32, tag="1")]
     pub length: i32,
@@ -110,7 +107,7 @@ pub mod cache_client {
         }
         pub async fn get_all_cache_set(
             &mut self,
-            request: impl tonic::IntoRequest<super::GetAllCacheSetRequest>,
+            request: impl tonic::IntoRequest<()>,
         ) -> Result<tonic::Response<super::GetAllCacheSetResponse>, tonic::Status> {
             self.inner
                 .ready()
@@ -189,7 +186,7 @@ pub mod cache_server {
     pub trait Cache: Send + Sync + 'static {
         async fn get_all_cache_set(
             &self,
-            request: tonic::Request<super::GetAllCacheSetRequest>,
+            request: tonic::Request<()>,
         ) -> Result<tonic::Response<super::GetAllCacheSetResponse>, tonic::Status>;
         async fn get(
             &self,
@@ -266,19 +263,14 @@ pub mod cache_server {
                 "/cache.Cache/GetAllCacheSet" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllCacheSetSvc<T: Cache>(pub Arc<T>);
-                    impl<
-                        T: Cache,
-                    > tonic::server::UnaryService<super::GetAllCacheSetRequest>
+                    impl<T: Cache> tonic::server::UnaryService<()>
                     for GetAllCacheSetSvc<T> {
                         type Response = super::GetAllCacheSetResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::GetAllCacheSetRequest>,
-                        ) -> Self::Future {
+                        fn call(&mut self, request: tonic::Request<()>) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
                                 (*inner).get_all_cache_set(request).await

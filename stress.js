@@ -13,7 +13,7 @@ export default () => {
         reflect: true
     });
     const data = {key: 'Key', value: "Value"};
-    const response = client.invoke('cache.CacheService/Set', data);
+    const response = client.invoke('cache.Cache.Set', data);
     check(response, {
         'status is OK': (r) => r && r.status === grpc.StatusOK,
     });

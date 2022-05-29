@@ -1,10 +1,15 @@
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 use std::sync::{Arc, Mutex};
 use tonic::{transport::Server, Request, Response, Status};
 use cache::cache_server::{Cache, CacheServer};
 use cache::{CacheGetResponse, CacheGetRequest};
 use lazy_static::lazy_static;
+use prost_types::Any;
 use store::Store;
-use crate::cache::{CacheDeleteRequest, CacheDeleteResponse, CacheSetRequest, CacheSetResponse, GetAllCacheSetRequest, GetAllCacheSetResponse};
+use futures::executor::ThreadPool;
+use crate::cache::{CacheDeleteRequest, CacheDeleteResponse, CacheSetRequest, CacheSetResponse, GetAllCacheSetResponse};
 
 mod store;
 
@@ -17,13 +22,15 @@ lazy_static! {
     static ref STORE: Arc<Mutex<Store>> = Arc::new(Mutex::new(Store::new()));
 }
 
-#[derive(Default)]
-pub struct CacheImpl {}
+pub struct CacheImpl {
+    _pool: ThreadPool,
+}
 
 #[tonic::async_trait]
 impl Cache for CacheImpl {
-    async fn get_all_cache_set(&self, request: Request<GetAllCacheSetRequest>) -> Result<Response<GetAllCacheSetResponse>, Status> {
-        Ok(Response::new(GetAllCacheSetResponse { length: STORE.lock().unwrap().cache_length() }))
+    async fn get_all_cache_set(&self, request: Request<()>) -> Result<Response<GetAllCacheSetResponse>, Status> {
+        let store = STORE.lock().unwrap();
+        Ok(Response::new(GetAllCacheSetResponse { length: store.cache_length() }))
     }
 
     async fn get(&self, request: Request<CacheGetRequest>) -> Result<Response<CacheGetResponse>, Status> {
@@ -57,8 +64,10 @@ impl Cache for CacheImpl {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let thread_pool = ThreadPool::new()?;
+
     let addr = "0.0.0.0:3000".parse().unwrap();
-    let cache = CacheImpl::default();
+    let cache = CacheImpl { _pool: thread_pool };
 
     println!("Cache server listening on {}", addr);
 

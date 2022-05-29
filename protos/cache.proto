@@ -3,17 +3,16 @@ syntax = "proto3";
 package cache;
 
 import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 
 service Cache {
-  rpc GetAllCacheSet(GetAllCacheSetRequest) returns (GetAllCacheSetResponse) {}
+  rpc GetAllCacheSet(google.protobuf.Empty) returns (GetAllCacheSetResponse) {}
   rpc Get(CacheGetRequest) returns (CacheGetResponse) {}
   rpc Set(CacheSetRequest) returns (CacheSetResponse) {}
   rpc Delete(CacheDeleteRequest) returns (CacheDeleteResponse) {}
 }
 
 // Get All Cache Set
-message GetAllCacheSetRequest {}
-
 message GetAllCacheSetResponse {
   int32 length = 1;
 }
