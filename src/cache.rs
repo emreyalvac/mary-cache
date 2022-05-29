@@ -1,3 +1,12 @@
+/// Get All Cache Set
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetAllCacheSetRequest {
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetAllCacheSetResponse {
+    #[prost(int32, tag="1")]
+    pub length: i32,
+}
 /// Delete
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheDeleteRequest {
@@ -11,8 +20,7 @@ pub struct CacheDeleteResponse {
     #[prost(string, tag="2")]
     pub value: ::prost::alloc::string::String,
 }
-// Set
-
+/// Set
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheSetRequest {
     #[prost(string, tag="1")]
@@ -25,8 +33,7 @@ pub struct CacheSetResponse {
     #[prost(bool, tag="1")]
     pub success: bool,
 }
-// Get
-
+/// Get
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheGetRequest {
     #[prost(string, tag="1")]
@@ -101,6 +108,25 @@ pub mod cache_client {
             self.inner = self.inner.accept_gzip();
             self
         }
+        pub async fn get_all_cache_set(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetAllCacheSetRequest>,
+        ) -> Result<tonic::Response<super::GetAllCacheSetResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/cache.Cache/GetAllCacheSet",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
         pub async fn get(
             &mut self,
             request: impl tonic::IntoRequest<super::CacheGetRequest>,
@@ -161,6 +187,10 @@ pub mod cache_server {
     ///Generated trait containing gRPC methods that should be implemented for use with CacheServer.
     #[async_trait]
     pub trait Cache: Send + Sync + 'static {
+        async fn get_all_cache_set(
+            &self,
+            request: tonic::Request<super::GetAllCacheSetRequest>,
+        ) -> Result<tonic::Response<super::GetAllCacheSetResponse>, tonic::Status>;
         async fn get(
             &self,
             request: tonic::Request<super::CacheGetRequest>,
@@ -233,6 +263,46 @@ pub mod cache_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
+                "/cache.Cache/GetAllCacheSet" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetAllCacheSetSvc<T: Cache>(pub Arc<T>);
+                    impl<
+                        T: Cache,
+                    > tonic::server::UnaryService<super::GetAllCacheSetRequest>
+                    for GetAllCacheSetSvc<T> {
+                        type Response = super::GetAllCacheSetResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::GetAllCacheSetRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).get_all_cache_set(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetAllCacheSetSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/cache.Cache/Get" => {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Cache>(pub Arc<T>);

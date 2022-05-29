@@ -35,4 +35,8 @@ impl Store {
             None => Err(false)
         }
     }
+
+    pub fn cache_length(&self) -> i32 {
+        self._cache.len() as i32
+    }
 }

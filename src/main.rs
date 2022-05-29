@@ -4,7 +4,7 @@ use cache::cache_server::{Cache, CacheServer};
 use cache::{CacheGetResponse, CacheGetRequest};
 use lazy_static::lazy_static;
 use store::Store;
-use crate::cache::{CacheDeleteRequest, CacheDeleteResponse, CacheSetRequest, CacheSetResponse};
+use crate::cache::{CacheDeleteRequest, CacheDeleteResponse, CacheSetRequest, CacheSetResponse, GetAllCacheSetRequest, GetAllCacheSetResponse};
 
 mod store;
 
@@ -22,6 +22,10 @@ pub struct CacheImpl {}
 
 #[tonic::async_trait]
 impl Cache for CacheImpl {
+    async fn get_all_cache_set(&self, request: Request<GetAllCacheSetRequest>) -> Result<Response<GetAllCacheSetResponse>, Status> {
+        Ok(Response::new(GetAllCacheSetResponse { length: STORE.lock().unwrap().cache_length() }))
+    }
+
     async fn get(&self, request: Request<CacheGetRequest>) -> Result<Response<CacheGetResponse>, Status> {
         let req = request.get_ref().clone();
         let store_op = STORE.lock().unwrap().get(req.key);
