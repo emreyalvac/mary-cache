@@ -9,6 +9,7 @@ use lazy_static::lazy_static;
 use prost_types::Any;
 use store::Store;
 use futures::executor::ThreadPool;
+use prost_types::field::Kind;
 use crate::cache::{CacheDeleteRequest, CacheDeleteResponse, CacheSetRequest, CacheSetResponse, GetAllCacheSetResponse};
 
 mod store;
@@ -37,15 +38,16 @@ impl Cache for CacheImpl {
         let req = request.get_ref().clone();
         let store_op = STORE.lock().unwrap().get(req.key);
         match store_op {
-            Ok(value) => Ok(Response::new(CacheGetResponse { value })),
+            Ok(value) => Ok(Response::new(CacheGetResponse { value: Some(value) })),
             // TODO: gRPC - Cache Error
-            Err(_) => Ok(Response::new(CacheGetResponse { value: String::default() }))
+            Err(_) => Err(Status::not_found("Not Found"))
         }
     }
 
     async fn set(&self, request: Request<CacheSetRequest>) -> Result<Response<CacheSetResponse>, Status> {
+        println!("{:?}", request);
         let req = request.get_ref().clone();
-        let store_op = STORE.lock().unwrap().set(req.key, req.value);
+        let store_op = STORE.lock().unwrap().set(req.key, req.value.unwrap());
         match store_op {
             Ok(_) => Ok(Response::new(CacheSetResponse { success: true })),
             Err(_) => Ok(Response::new(CacheSetResponse { success: false }))
@@ -56,8 +58,8 @@ impl Cache for CacheImpl {
         let req = request.get_ref().clone();
         let store_op = STORE.lock().unwrap().delete(req.key);
         match store_op {
-            Ok(value) => Ok(Response::new(CacheDeleteResponse { value, success: true })),
-            Err(_) => Ok(Response::new(CacheDeleteResponse { value: String::default(), success: false })),
+            Ok(value) => Ok(Response::new(CacheDeleteResponse { value: Some(value), success: true })),
+            Err(_) => Err(Status::internal("Cannot delete")),
         }
     }
 }

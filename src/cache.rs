@@ -14,16 +14,16 @@ pub struct CacheDeleteRequest {
 pub struct CacheDeleteResponse {
     #[prost(bool, tag="1")]
     pub success: bool,
-    #[prost(string, tag="2")]
-    pub value: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub value: ::core::option::Option<::prost_types::Any>,
 }
 /// Set
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheSetRequest {
     #[prost(string, tag="1")]
     pub key: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
-    pub value: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub value: ::core::option::Option<::prost_types::Any>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheSetResponse {
@@ -38,8 +38,8 @@ pub struct CacheGetRequest {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CacheGetResponse {
-    #[prost(string, tag="1")]
-    pub value: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="1")]
+    pub value: ::core::option::Option<::prost_types::Any>,
 }
 /// Generated client implementations.
 pub mod cache_client {

@@ -24,13 +24,13 @@ message CacheDeleteRequest {
 
 message CacheDeleteResponse {
   bool success = 1;
-  string value = 2;
+  google.protobuf.Any value = 2;
 }
 
 // Set
 message CacheSetRequest {
   string key = 1;
-  string value = 2;
+  google.protobuf.Any value = 2;
 }
 
 message CacheSetResponse {
@@ -43,5 +43,5 @@ message CacheGetRequest {
 }
 
 message CacheGetResponse {
-  string value = 1;
+  google.protobuf.Any value = 1;
 }
